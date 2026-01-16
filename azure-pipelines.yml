@@ -1,0 +1,21 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "20.x"
+    displayName: "Use Node.js 20"
+
+  - script: npm ci
+    displayName: "Install dependencies"
+
+  - script: npm run validate:docs
+    displayName: "Validate docs"

@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["id", "type", "title", "owner"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "adr",
+        "guide",
+        "runbook",
+        "reference",
+        "process",
+        "postmortem",
+        "index",
+        "template"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created": {
+      "type": "string",
+      "minLength": 1
+    },
+    "service": {
+      "type": "string",
+      "minLength": 1
+    },
+    "severity": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": { "const": "adr" }
+        }
+      },
+      "then": {
+        "required": ["status", "created"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": { "const": "runbook" }
+        }
+      },
+      "then": {
+        "required": ["service"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": { "const": "postmortem" }
+        }
+      },
+      "then": {
+        "required": ["severity", "service", "created"]
+      }
+    }
+  ]
+}

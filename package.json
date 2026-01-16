@@ -1,0 +1,14 @@
+{
+  "name": "docsdb",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate:docs": "node tools/validate-docs.mjs"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "glob": "^10.4.5",
+    "gray-matter": "^4.0.3"
+  }
+}
