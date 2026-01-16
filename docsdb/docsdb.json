@@ -1,0 +1,53 @@
+[
+  {
+    "id": "adr-0001",
+    "type": "adr",
+    "title": "Adopt schema-based frontmatter validation",
+    "owner": "docs-platform",
+    "path": "docs/adr/adr-0001-sample.md",
+    "lastModified": "2026-01-16T21:04:09.110Z",
+    "linksTo": [],
+    "status": "accepted",
+    "created": "2024-04-12"
+  },
+  {
+    "id": "guide-0001",
+    "type": "guide",
+    "title": "Writing frontmatter for docsdb",
+    "owner": "docs-platform",
+    "path": "docs/guide/guide-0001-sample.md",
+    "lastModified": "2026-01-16T21:11:38.465Z",
+    "linksTo": []
+  },
+  {
+    "id": "index-0001",
+    "type": "index",
+    "title": "Documentation Index",
+    "owner": "docs-platform",
+    "path": "docs/index.md",
+    "lastModified": "2026-01-16T21:11:41.342Z",
+    "linksTo": []
+  },
+  {
+    "id": "postmortem-0001",
+    "type": "postmortem",
+    "title": "Validation pipeline outage",
+    "owner": "docs-platform",
+    "path": "docs/postmortem/postmortem-0001-sample.md",
+    "lastModified": "2026-01-16T21:11:35.144Z",
+    "linksTo": [],
+    "created": "2024-05-03",
+    "service": "docs-validator",
+    "severity": "sev2"
+  },
+  {
+    "id": "runbook-0001",
+    "type": "runbook",
+    "title": "Restart the docs validation service",
+    "owner": "docs-platform",
+    "path": "docs/runbook/runbook-0001-sample.md",
+    "lastModified": "2026-01-16T21:11:31.062Z",
+    "linksTo": [],
+    "service": "docs-validator"
+  }
+]

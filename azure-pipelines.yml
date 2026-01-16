@@ -19,3 +19,6 @@ steps:
 
   - script: npm run validate:docs
     displayName: "Validate docs"
+
+  - script: npm run build:index
+    displayName: "Build docs index"

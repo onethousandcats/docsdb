@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "validate:docs": "node tools/validate-docs.mjs"
+    "validate:docs": "node tools/validate-docs.mjs",
+    "build:index": "node tools/build-index.mjs",
+    "build": "npm run validate:docs && npm run build:index"
   },
   "dependencies": {
     "ajv": "^8.17.1",
