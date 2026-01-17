@@ -9,7 +9,9 @@
     "query": "node tools/query.mjs",
     "docsdb": "node tools/cli.mjs",
     "serve": "node tools/serve.mjs",
-    "start": "npm run serve"
+    "start": "npm run serve",
+    "new:adr": "node tools/new-doc.mjs adr",
+    "new:runbook": "node tools/new-doc.mjs runbook"
   },
   "bin": {
     "docsdb": "./tools/cli.mjs"

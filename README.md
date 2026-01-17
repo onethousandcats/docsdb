@@ -36,6 +36,13 @@ npm run query -- --tag devops --limit 20
 npm run query -- --text "managed identity" --json
 ```
 
+Create new docs:
+
+```bash
+npm run new:adr -- --title "Release Process Modernization" --owner "Sales Tools" --tags release,devops
+npm run new:runbook -- --title "Restart pricing engine" --owner "Sales Tools" --service "pricing-engine"
+```
+
 ## Schema
 
 The schema in `docsdb/schema.json` requires `id`, `type`, `title`, and `owner`
