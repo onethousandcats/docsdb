@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>docsDb Search</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f6f8;
+        --panel: #ffffff;
+        --ink: #101113;
+        --muted: #5f6368;
+        --accent: #111827;
+        --accent-ink: #f9fafb;
+        --border: #e4e7eb;
+        --shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Avenir Next", "Helvetica Neue", "Segoe UI", sans-serif;
+        background: linear-gradient(180deg, #ffffff 0%, #f5f6f8 100%);
+        color: var(--ink);
+        min-height: 100vh;
+        padding: 32px 20px 80px;
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 4vw, 3.3rem);
+        letter-spacing: 0.02em;
+        margin: 0;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 1rem;
+      }
+
+      .controls {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        align-items: end;
+        box-shadow: var(--shadow);
+      }
+
+      label {
+        display: flex;
+        flex-direction: column;
+        font-size: 0.85rem;
+        color: var(--muted);
+        gap: 6px;
+      }
+
+      input,
+      select,
+      button {
+        font: inherit;
+      }
+
+      input,
+      select {
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #fff;
+      }
+
+      button {
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: var(--accent-ink);
+        padding: 9px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      button.secondary {
+        background: transparent;
+        color: var(--accent);
+      }
+
+      .meta-row {
+        margin: 18px 0 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 20px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .results {
+        display: grid;
+        gap: 14px;
+      }
+
+      .card {
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: #fff;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 30px rgba(16, 24, 40, 0.12);
+      }
+
+      .card-title {
+        font-size: 1.1rem;
+        margin: 0 0 6px;
+      }
+
+      .card-subtitle {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+
+      .card-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        font-size: 0.85rem;
+        color: var(--ink);
+      }
+
+      .pill {
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: #f3f4f6;
+        border: 1px solid #e5e7eb;
+      }
+
+      .path {
+        font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+        color: var(--muted);
+      }
+
+      .notice {
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px dashed var(--border);
+        background: #ffffff;
+        color: var(--muted);
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 20px 16px 60px;
+        }
+
+        .controls {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>docsDb Search</h1>
+        <div class="subtitle">
+          Search across docs metadata and copy ids with a click.
+        </div>
+      </header>
+
+      <section class="controls">
+        <label>
+          Search
+          <input id="searchInput" type="text" placeholder="Title, summary, or id" />
+        </label>
+        <label>
+          Type
+          <select id="typeSelect"></select>
+        </label>
+        <label>
+          Status
+          <select id="statusSelect"></select>
+        </label>
+        <label>
+          Owner
+          <select id="ownerSelect"></select>
+        </label>
+        <label>
+          Tag
+          <input id="tagInput" type="text" placeholder="devops" />
+        </label>
+        <button id="clearButton" class="secondary" type="button">Clear</button>
+      </section>
+
+      <div class="meta-row">
+        <div id="resultCount">0 results</div>
+        <div id="limitNotice"></div>
+        <a id="downloadLink" href="#" download="docs.db.json">Download JSON</a>
+      </div>
+
+      <section id="results" class="results"></section>
+      <div id="errorMessage" class="notice" hidden></div>
+    </main>
+
+    <script>
+      const state = {
+        docs: [],
+        filtered: [],
+      };
+
+      const searchInput = document.getElementById("searchInput");
+      const typeSelect = document.getElementById("typeSelect");
+      const statusSelect = document.getElementById("statusSelect");
+      const ownerSelect = document.getElementById("ownerSelect");
+      const tagInput = document.getElementById("tagInput");
+      const clearButton = document.getElementById("clearButton");
+      const resultsEl = document.getElementById("results");
+      const resultCount = document.getElementById("resultCount");
+      const limitNotice = document.getElementById("limitNotice");
+      const errorMessage = document.getElementById("errorMessage");
+      const downloadLink = document.getElementById("downloadLink");
+
+      const MAX_RESULTS = 200;
+
+      function normalize(value) {
+        return value ? value.toString().toLowerCase() : "";
+      }
+
+      function uniqueValues(items) {
+        return Array.from(new Set(items.filter(Boolean))).sort();
+      }
+
+      function buildSelect(select, values) {
+        select.innerHTML = "";
+        const allOption = document.createElement("option");
+        allOption.value = "";
+        allOption.textContent = "All";
+        select.appendChild(allOption);
+        for (const value of values) {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value;
+          select.appendChild(option);
+        }
+      }
+
+      function cardFor(doc) {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.innerHTML = `
+          <h2 class="card-title">${doc.title ?? doc.id}</h2>
+          <div class="card-subtitle">${doc.id} · ${doc.type}${
+            doc.status ? ` · ${doc.status}` : ""
+          }</div>
+          <div class="card-meta">
+            ${doc.owner ? `<span class="pill">${doc.owner}</span>` : ""}
+            ${doc.service ? `<span class="pill">${doc.service}</span>` : ""}
+            ${
+              Array.isArray(doc.tags)
+                ? doc.tags.map((tag) => `<span class="pill">${tag}</span>`).join("")
+                : ""
+            }
+            <span class="path">${doc.path}</span>
+          </div>
+        `;
+        card.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(doc.id);
+            card.style.outline = "2px solid var(--accent)";
+            setTimeout(() => {
+              card.style.outline = "none";
+            }, 600);
+          } catch {
+            card.classList.toggle("expanded");
+          }
+        });
+        return card;
+      }
+
+      function render() {
+        resultsEl.innerHTML = "";
+        const limited = state.filtered.slice(0, MAX_RESULTS);
+        for (const doc of limited) {
+          resultsEl.appendChild(cardFor(doc));
+        }
+        resultCount.textContent = `${state.filtered.length} results`;
+        if (state.filtered.length > MAX_RESULTS) {
+          limitNotice.textContent = `Showing first ${MAX_RESULTS} results`;
+        } else {
+          limitNotice.textContent = "";
+        }
+      }
+
+      function applyFilters() {
+        const textNeedle = normalize(searchInput.value);
+        const tagNeedle = normalize(tagInput.value);
+        const typeValue = typeSelect.value;
+        const statusValue = statusSelect.value;
+        const ownerValue = ownerSelect.value;
+
+        state.filtered = state.docs.filter((doc) => {
+          if (typeValue && doc.type !== typeValue) return false;
+          if (statusValue && doc.status !== statusValue) return false;
+          if (ownerValue && doc.owner !== ownerValue) return false;
+
+          if (tagNeedle) {
+            const tags = Array.isArray(doc.tags) ? doc.tags : [];
+            const matches = tags.some(
+              (tag) => normalize(tag) === tagNeedle
+            );
+            if (!matches) return false;
+          }
+
+          if (textNeedle) {
+            const haystack = normalize(
+              `${doc.title ?? ""} ${doc.summary ?? ""} ${doc.id ?? ""}`
+            );
+            if (!haystack.includes(textNeedle)) return false;
+          }
+
+          return true;
+        });
+
+        render();
+      }
+
+      function bindEvents() {
+        const inputs = [
+          searchInput,
+          typeSelect,
+          statusSelect,
+          ownerSelect,
+          tagInput,
+        ];
+        inputs.forEach((input) => {
+          input.addEventListener("input", applyFilters);
+          input.addEventListener("change", applyFilters);
+        });
+        clearButton.addEventListener("click", () => {
+          searchInput.value = "";
+          tagInput.value = "";
+          typeSelect.value = "";
+          statusSelect.value = "";
+          ownerSelect.value = "";
+          applyFilters();
+        });
+      }
+
+      async function loadIndex() {
+        const candidates = ["./docsdb.json", "./docs.db.json"];
+        for (const candidate of candidates) {
+          try {
+            const response = await fetch(candidate);
+            if (!response.ok) {
+              continue;
+            }
+            const data = await response.json();
+            if (!Array.isArray(data)) {
+              throw new Error("Index is not an array");
+            }
+            downloadLink.href = candidate;
+            return data;
+          } catch (error) {
+            if (error instanceof TypeError) {
+              throw new Error(
+                "Unable to load the index. If you opened this page via file://, run a local server:\n" +
+                  "  npx serve docsdb\n" +
+                  "  python -m http.server\n"
+              );
+            }
+          }
+        }
+        throw new Error(
+          "Index file not found. Run npm run build to generate docsdb/docs.db.json."
+        );
+      }
+
+      async function init() {
+        try {
+          state.docs = await loadIndex();
+          state.docs.sort((a, b) =>
+            String(a.id).localeCompare(String(b.id))
+          );
+          buildSelect(typeSelect, uniqueValues(state.docs.map((doc) => doc.type)));
+          buildSelect(
+            statusSelect,
+            uniqueValues(state.docs.map((doc) => doc.status))
+          );
+          buildSelect(
+            ownerSelect,
+            uniqueValues(state.docs.map((doc) => doc.owner))
+          );
+          state.filtered = [...state.docs];
+          bindEvents();
+          render();
+        } catch (error) {
+          errorMessage.hidden = false;
+          errorMessage.textContent = error.message;
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>

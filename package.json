@@ -5,7 +5,14 @@
   "scripts": {
     "validate:docs": "node tools/validate-docs.mjs",
     "build:index": "node tools/build-index.mjs",
-    "build": "npm run validate:docs && npm run build:index"
+    "build": "npm run validate:docs && npm run build:index",
+    "query": "node tools/query.mjs",
+    "docsdb": "node tools/cli.mjs",
+    "serve": "node tools/serve.mjs",
+    "start": "npm run serve"
+  },
+  "bin": {
+    "docsdb": "./tools/cli.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",

@@ -8,7 +8,7 @@ import addFormats from "ajv-formats";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const schemaPath = path.resolve(__dirname, "..", "schema.json");
+const schemaPath = path.resolve(__dirname, "..", "docsdb", "schema.json");
 
 function formatErrors(errors) {
   return errors.map((error) => {

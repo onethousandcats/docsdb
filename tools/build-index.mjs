@@ -9,9 +9,9 @@ import addFormats from "ajv-formats";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
-const schemaPath = path.resolve(repoRoot, "schema.json");
+const schemaPath = path.resolve(repoRoot, "docsdb", "schema.json");
 const outputDir = path.resolve(repoRoot, "docsdb");
-const outputPath = path.resolve(outputDir, "docsdb.json");
+const outputPath = path.resolve(outputDir, "docs.db.json");
 
 const metadataFields = [
   "id",
@@ -204,4 +204,6 @@ entries.sort((a, b) => a.id.localeCompare(b.id));
 await mkdir(outputDir, { recursive: true });
 await writeFile(outputPath, JSON.stringify(entries, null, 2) + "\n", "utf8");
 
-console.log(`Wrote ${entries.length} docs to ${path.relative(repoRoot, outputPath)}.`);
+console.log(
+  `Wrote ${entries.length} docs to ${path.relative(repoRoot, outputPath)}.`
+);
